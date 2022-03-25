@@ -4,7 +4,7 @@
 #include "Audio.h"
 #include "Input.h"
 #include "DebugText.h"
-
+// Git作動テスト用コメント
 void GameScene::Initialize()
 {
 	// スプライト共通テクスチャ読み込み
