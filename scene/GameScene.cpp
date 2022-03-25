@@ -47,6 +47,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
+	// Git作動テスト用コメント
 	Input* input = Input::GetInstance();
 
 	if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
