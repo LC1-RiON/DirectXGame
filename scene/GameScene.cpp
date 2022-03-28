@@ -30,14 +30,20 @@ void GameScene::Initialize()
 	std::weak_ptr<Object3d> object2WP = objectManager->AddObject(Object3d::Create(model_2));
 	object2 = object2WP.lock();
 	// オブジェクト位置調整
-	object1->SetPosition({ -5,0,-5 });
-	object2->SetPosition({ +5,0,+5 });
+	object1->SetPosition({ 0,0,-5 });
+	object2->SetPosition({ 0,0,+5 });
+
+	// プレイヤー後方にカメラを配置
+	XMFLOAT3 eye = object1->GetPosition();
+	eye.y += 10.0f;
+	eye.z -= 10.0f;
+	Object3d::SetEye(eye);
 
 	// 音声読み込み
 	Audio::GetInstance()->LoadWave("Alarm01.wav");
 
 	// 音声再生
-	Audio::GetInstance()->PlayWave("Alarm01.wav");
+	//Audio::GetInstance()->PlayWave("Alarm01.wav");
 }
 
 void GameScene::Finalize()
@@ -51,22 +57,41 @@ void GameScene::Update()
 {
 	Input* input = Input::GetInstance();
 
-	// 移動操作
-	if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
+	// WASDによる移動操作
+	if (input->PushKey(DIK_W) || input->PushKey(DIK_S) || input->PushKey(DIK_D) || input->PushKey(DIK_A)) {
 		XMFLOAT3 pos = object1->GetPosition();
-		if (input->PushKey(DIK_UP)) {
+		XMFLOAT3 target = Object3d::GetTarget();
+		if (input->PushKey(DIK_W)) {
 			pos.z += 1.0f;
+			target.z += 1.0f;
 		}
-		if (input->PushKey(DIK_DOWN)) {
+		if (input->PushKey(DIK_S)) {
 			pos.z -= 1.0f;
+			target.z -= 1.0f;
 		}
-		if (input->PushKey(DIK_RIGHT)) {
+		if (input->PushKey(DIK_D)) {
 			pos.x += 1.0f;
+			target.x += 1.0f;
 		}
-		if (input->PushKey(DIK_LEFT)) {
+		if (input->PushKey(DIK_A)) {
 			pos.x -= 1.0f;
+			target.x -= 1.0f;
 		}
 		object1->SetPosition(pos);
+		Object3d::SetTarget(target);
+	}
+
+	// プレイヤーにカメラ追従
+	XMFLOAT3 eye = object1->GetPosition();
+	eye.y += 10.0f;
+	eye.z -= 10.0f;
+	Object3d::SetEye(eye);
+
+	// SPACEキーでモードチェンジ
+	if (input->TriggerKey(DIK_SPACE)) {
+		playerMode++;
+		if (playerMode >= 4)
+			playerMode = 1;
 	}
 
 	if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
@@ -78,10 +103,18 @@ void GameScene::Update()
 		SceneManager::GetInstance()->ChangeScene("TITLE");
 	}
 
-	// X座標,Y座標を指定して表示
-	DebugText::GetInstance()->Print("Hello,DirectX!!", 200, 100);
-	// X座標,Y座標,縮尺を指定して表示
-	DebugText::GetInstance()->Print("Nihon Kogakuin", 200, 200, 2.0f);
+	// プレイヤーモード毎の表記
+	switch (playerMode) {
+	case 1:
+		DebugText::GetInstance()->Print("MODE BAT", 200, 100);
+		break;
+	case 2:
+		DebugText::GetInstance()->Print("MODE SNAKE", 200, 100);
+		break;
+	case 3:
+		DebugText::GetInstance()->Print("MODE DOG", 200, 100);
+		break;
+	}
 
 	// 3Dオブジェクト更新
 	objectManager->Update();

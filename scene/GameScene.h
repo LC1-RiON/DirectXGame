@@ -27,5 +27,7 @@ private:
 	std::shared_ptr<Object3d> object2;
 
 	std::unique_ptr<ObjectManager> objectManager;
+
+	int playerMode = 1;
 };
 
