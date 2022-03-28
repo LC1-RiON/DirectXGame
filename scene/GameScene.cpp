@@ -5,6 +5,8 @@
 #include "Input.h"
 #include "DebugText.h"
 
+using namespace DirectX;
+
 void GameScene::Initialize()
 {
 	// スプライト共通テクスチャ読み込み
@@ -48,6 +50,24 @@ void GameScene::Finalize()
 void GameScene::Update()
 {
 	Input* input = Input::GetInstance();
+
+	// 移動操作
+	if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
+		XMFLOAT3 pos = object1->GetPosition();
+		if (input->PushKey(DIK_UP)) {
+			pos.z += 1.0f;
+		}
+		if (input->PushKey(DIK_DOWN)) {
+			pos.z -= 1.0f;
+		}
+		if (input->PushKey(DIK_RIGHT)) {
+			pos.x += 1.0f;
+		}
+		if (input->PushKey(DIK_LEFT)) {
+			pos.x -= 1.0f;
+		}
+		object1->SetPosition(pos);
+	}
 
 	if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
 	{
