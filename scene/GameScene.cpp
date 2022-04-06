@@ -22,22 +22,29 @@ void GameScene::Initialize()
 	// .objからモデルデータ読み込み
 	model_1 = Model::LoadFromOBJ("ground");
 	model_2 = Model::LoadFromOBJ("triangle_mat");
+	model_3 = Model::LoadFromOBJ("gortopus");
 	// 3Dオブジェクト生成
 	std::weak_ptr<Object3d> floorWP = objectManager->AddObject(Object3d::Create(model_1));
 	floor = floorWP.lock();
 	std::weak_ptr<Object3d> object1WP = objectManager->AddObject(Object3d::Create(model_2));
 	object1 = object1WP.lock();
-	std::weak_ptr<Object3d> object2WP = objectManager->AddObject(Object3d::Create(model_2));
+	std::weak_ptr<Object3d> object2WP = objectManager->AddObject(Object3d::Create(model_3));
 	object2 = object2WP.lock();
 	// オブジェクト位置調整
 	object1->SetPosition({ 0,0,-5 });
 	object2->SetPosition({ 0,0,+5 });
+
+	object2->SetRotation({ 0,180,0 });
 
 	// プレイヤー後方にカメラを配置
 	XMFLOAT3 eye = object1->GetPosition();
 	eye.y += 10.0f;
 	eye.z -= 10.0f;
 	Object3d::SetEye(eye);
+	XMFLOAT3 target = Object3d::GetTarget();
+	target.y += 10.0f;
+	target.z -= 10.0f;
+	Object3d::SetTarget(target);
 
 	// 音声読み込み
 	Audio::GetInstance()->LoadWave("Alarm01.wav");
@@ -51,6 +58,7 @@ void GameScene::Finalize()
 	delete sprite;
 	delete model_1;
 	delete model_2;
+	delete model_3;
 }
 
 void GameScene::Update()
@@ -81,6 +89,18 @@ void GameScene::Update()
 		Object3d::SetTarget(target);
 	}
 
+	// 左右の自機回転
+	if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
+		XMFLOAT3 rot = object1->GetRotation();
+		if (input->PushKey(DIK_RIGHT)) {
+			rot.y += 1;
+		}
+		if (input->PushKey(DIK_LEFT)) {
+			rot.y -= 1;
+		}
+		object1->SetRotation(rot);
+	}
+
 	// プレイヤーにカメラ追従
 	XMFLOAT3 eye = object1->GetPosition();
 	eye.y += 10.0f;
@@ -94,10 +114,10 @@ void GameScene::Update()
 			playerMode = 1;
 	}
 
-	if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
-	{
-		OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
-	}
+	//if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
+	//{
+	//	OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
+	//}
 
 	if (input->TriggerKey(DIK_RETURN)) {
 		SceneManager::GetInstance()->ChangeScene("TITLE");
