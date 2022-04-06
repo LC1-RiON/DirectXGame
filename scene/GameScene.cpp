@@ -107,6 +107,22 @@ void GameScene::Update()
 	eye.z -= 10.0f;
 	Object3d::SetEye(eye);
 
+	// カメラ追従、自機回転対応型
+	if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
+		if (input->PushKey(DIK_UP)) {
+
+		}
+		if (input->PushKey(DIK_DOWN)) {
+
+		}
+		if (input->PushKey(DIK_RIGHT)) {
+
+		}
+		if (input->PushKey(DIK_LEFT)) {
+
+		}
+	}
+
 	// SPACEキーでモードチェンジ
 	if (input->TriggerKey(DIK_SPACE)) {
 		playerMode++;

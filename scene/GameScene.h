@@ -30,5 +30,10 @@ private:
 	std::unique_ptr<ObjectManager> objectManager;
 
 	int playerMode = 1;
+
+	const float rotUNIT = 1;
+	float rotX = 0;
+	float rotY = 0;
+	float rotZ = 0;
 };
 

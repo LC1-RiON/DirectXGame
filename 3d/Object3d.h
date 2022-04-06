@@ -108,6 +108,10 @@ private: // 静的メンバ変数
 	static XMFLOAT3 target;
 	// 上方向ベクトル
 	static XMFLOAT3 up;
+	// 横方向回転角度
+	static float rightAngle;
+	// 上方向回転角度
+	static float upAngle;
 
 private:// 静的メンバ関数
 	/// <summary>

@@ -25,6 +25,8 @@ XMMATRIX Object3d::matProjection{};
 XMFLOAT3 Object3d::eye = { 0, 5.0f, -50.0f };
 XMFLOAT3 Object3d::target = { 0, 0, 0 };
 XMFLOAT3 Object3d::up = { 0, 1, 0 };
+float Object3d::rightAngle = 0.0f;
+float Object3d::upAngle = 0.0f;
 
 bool Object3d::StaticInitialize(ID3D12Device * device, ID3D12GraphicsCommandList* cmdList, int window_width, int window_height)
 {
