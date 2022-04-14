@@ -36,14 +36,17 @@ void GameScene::Initialize()
 
 	object2->SetRotation({ 0,180,0 });
 
+	object2->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+
 	// プレイヤー後方にカメラを配置
-	XMFLOAT3 eye = object1->GetPosition();
+	XMFLOAT3 pos = object1->GetPosition();
+	XMFLOAT3 eye = pos;
+	XMFLOAT3 rot = object1->GetRotation();
+	eye.x -= sinf(XMConvertToRadians(rot.y)) * 10.0f;
 	eye.y += 10.0f;
-	eye.z -= 10.0f;
+	eye.z -= cosf(XMConvertToRadians(rot.y)) * 10.0f;
 	Object3d::SetEye(eye);
-	XMFLOAT3 target = Object3d::GetTarget();
-	target.y += 10.0f;
-	Object3d::SetTarget(target);
+	Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
 
 	// 音声読み込み
 	Audio::GetInstance()->LoadWave("Alarm01.wav");

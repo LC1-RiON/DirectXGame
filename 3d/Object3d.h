@@ -150,6 +150,12 @@ public: // メンバ関数
 	void Draw();
 
 	/// <summary>
+	/// スケーリングの設定
+	/// </summary>
+	/// <param name="position">回転角</param>
+	void SetScale(XMFLOAT3 scale) { this->scale = scale; }
+
+	/// <summary>
 	/// 回転角の取得
 	/// </summary>
 	/// <returns>回転角</returns>
