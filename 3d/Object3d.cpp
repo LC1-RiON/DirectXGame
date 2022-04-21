@@ -135,11 +135,8 @@ void Object3d::CameraMoveVector(XMFLOAT3 move)
 
 void Object3d::InitializeCamera(int window_width, int window_height)
 {
-	// ビュー行列の生成
-	matView = XMMatrixLookAtLH(
-		XMLoadFloat3(&eye),
-		XMLoadFloat3(&target),
-		XMLoadFloat3(&up));
+	// ビュー行列の計算
+	UpdateViewMatrix();
 
 	// 平行投影による射影行列の生成
 	//constMap->mat = XMMatrixOrthographicOffCenterLH(
@@ -157,9 +154,10 @@ void Object3d::InitializeCamera(int window_width, int window_height)
 bool Object3d::InitializeGraphicsPipeline()
 {
 	HRESULT result = S_FALSE;
-	ComPtr<ID3DBlob> vsBlob; // 頂点シェーダオブジェクト
+	ComPtr<ID3DBlob> vsBlob;	// 頂点シェーダオブジェクト
+	ComPtr<ID3DBlob> gsBlob;	// ジオメトリシェーダオブジェクト
 	ComPtr<ID3DBlob> psBlob;	// ピクセルシェーダオブジェクト
-	ComPtr<ID3DBlob> errorBlob; // エラーオブジェクト
+	ComPtr<ID3DBlob> errorBlob;	// エラーオブジェクト
 
 	// 頂点シェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -170,6 +168,29 @@ bool Object3d::InitializeGraphicsPipeline()
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
+	if (FAILED(result)) {
+		// errorBlobからエラー内容をstring型にコピー
+		std::string errstr;
+		errstr.resize(errorBlob->GetBufferSize());
+
+		std::copy_n((char*)errorBlob->GetBufferPointer(),
+			errorBlob->GetBufferSize(),
+			errstr.begin());
+		errstr += "\n";
+		// エラー内容を出力ウィンドウに表示
+		OutputDebugStringA(errstr.c_str());
+		exit(1);
+	}
+
+	// ジオメトリシェーダの読み込みとコンパイル
+	result = D3DCompileFromFile(
+		L"Resources/shaders/OBJGeometryShader.hlsl",	// シェーダファイル名
+		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE, // インクルード可能にする
+		"main", "gs_5_0",	// エントリーポイント名、シェーダーモデル指定
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
+		0,
+		&gsBlob, &errorBlob);
 	if (FAILED(result)) {
 		// errorBlobからエラー内容をstring型にコピー
 		std::string errstr;
@@ -229,6 +250,7 @@ bool Object3d::InitializeGraphicsPipeline()
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
 	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
+	gpipeline.GS = CD3DX12_SHADER_BYTECODE(gsBlob.Get());
 	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
 	// サンプルマスク
@@ -313,8 +335,57 @@ void Object3d::CreateModel()
 
 void Object3d::UpdateViewMatrix()
 {
-	// ビュー行列の更新
-	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+	// 視点
+	XMVECTOR eyePosition = XMLoadFloat3(&eye);
+	// 注視点
+	XMVECTOR targetPositoin = XMLoadFloat3(&target);
+	// 上方向仮置き
+	XMVECTOR upVector = XMLoadFloat3(&up);
+
+	// カメラZ軸（視線方向）
+	XMVECTOR cameraAxisZ = XMVectorSubtract(targetPositoin, eyePosition);
+
+	// ゼロベクトルを除外
+	assert(!XMVector3Equal(cameraAxisZ, XMVectorZero()));
+	assert(!XMVector3IsInfinite(cameraAxisZ));
+	assert(!XMVector3Equal(upVector, XMVectorZero()));
+	assert(!XMVector3IsInfinite(upVector));
+
+	// ベクトル正規化
+	cameraAxisZ = XMVector3Normalize(cameraAxisZ);
+
+	// カメラX軸
+	XMVECTOR cameraAxisX;
+	// X軸＝上方向→Z軸の外積
+	cameraAxisX = XMVector3Cross(upVector, cameraAxisZ);
+	// ベクトル正規化
+	cameraAxisX = XMVector3Normalize(cameraAxisX);
+
+	// カメラY軸
+	XMVECTOR cameraAxisY;
+	// Y軸＝Z軸→X軸の外積
+	cameraAxisY = XMVector3Cross(cameraAxisZ, cameraAxisX);
+
+	// カメラ回転行列
+	XMMATRIX matCameraRot;
+	// カメラ座標系からワールド座標系への変換行列
+	matCameraRot.r[0] = cameraAxisX;
+	matCameraRot.r[1] = cameraAxisY;
+	matCameraRot.r[2] = cameraAxisZ;
+	matCameraRot.r[3] = XMVectorSet(0, 0, 0, 1);
+	// 逆行列計算
+	matView = XMMatrixTranspose(matCameraRot);
+
+	// 視点座標反転
+	XMVECTOR reverseEyePosition = XMVectorNegate(eyePosition);
+	// カメラ位置からワールド原点へのベクトル（カメラ座標系）
+	XMVECTOR tX = XMVector3Dot(cameraAxisX, reverseEyePosition);	// X軸
+	XMVECTOR tY = XMVector3Dot(cameraAxisY, reverseEyePosition);	// Y軸
+	XMVECTOR tZ = XMVector3Dot(cameraAxisZ, reverseEyePosition);	// Z軸
+	// ベクトル統合
+	XMVECTOR translation = XMVectorSet(tX.m128_f32[0], tY.m128_f32[1], tZ.m128_f32[2], 1.0f);
+	// ビュー行列に平行移動成分を設定
+	matView.r[3] = translation;
 }
 
 bool Object3d::Initialize()
