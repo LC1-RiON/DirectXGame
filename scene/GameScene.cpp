@@ -4,11 +4,13 @@
 #include "Audio.h"
 #include "Input.h"
 #include "DebugText.h"
+#include <time.h>
 
 using namespace DirectX;
 
 void GameScene::Initialize()
 {
+	srand(time(NULL));
 	// スプライト共通テクスチャ読み込み
 	SpriteCommon::GetInstance()->LoadTexture(1, L"Resources/playscene.png");
 	//spriteCommon->LoadTexture(2, L"Resources/house.png");
@@ -98,12 +100,16 @@ void GameScene::Update()
 		Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
 	}
 
-	// 左右の自機回転
+	// 左右の自機回転、左シフトで3倍速
 	if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
 		if (input->PushKey(DIK_RIGHT)) {
+			if (input->PushKey(DIK_LSHIFT))
+				rot.y += rotUNIT * 2.0f;
 			rot.y += rotUNIT;
 		}
 		if (input->PushKey(DIK_LEFT)) {
+			if (input->PushKey(DIK_LSHIFT))
+				rot.y -= rotUNIT * 2.0f;
 			rot.y -= rotUNIT;
 		}
 		object1->SetRotation(rot);
@@ -121,6 +127,14 @@ void GameScene::Update()
 		playerMode++;
 		if (playerMode >= 4)
 			playerMode = 1;
+	}
+
+	// ゴール判定
+	XMFLOAT3 pPos = object1->GetPosition();
+	XMFLOAT3 gPos = goal->GetPosition();
+	float range = sqrtf(powf(pPos.x - gPos.x, 2) + powf(pPos.z - gPos.z, 2));
+	if (range <= 5.0f) {
+		goal->SetPosition(XMFLOAT3(rand() % 101 - 50, 0, rand() % 101 - 50));
 	}
 
 	//if (input->PushKey(DIK_0)) // 数字の0キーが押されていたら
