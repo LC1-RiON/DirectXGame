@@ -22,10 +22,12 @@ private:
 	Model* modelFloor = nullptr;
 	Model* modelPlayer = nullptr;
 	Model* modelEnemy1 = nullptr;
+	Model* modelFlag = nullptr;
 
 	std::shared_ptr<Object3d> floor;
 	std::shared_ptr<Object3d> object1;
 	std::shared_ptr<Object3d> object2;
+	std::shared_ptr<Object3d> goal;
 
 	std::unique_ptr<ObjectManager> objectManager;
 

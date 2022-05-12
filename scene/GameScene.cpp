@@ -23,6 +23,7 @@ void GameScene::Initialize()
 	modelFloor = Model::LoadFromOBJ("ground");
 	modelPlayer = Model::LoadFromOBJ("triangle_mat");
 	modelEnemy1 = Model::LoadFromOBJ("gortopus");
+	modelFlag = Model::LoadFromOBJ("flag");
 	// 3Dオブジェクト生成
 	std::weak_ptr<Object3d> floorWP = objectManager->AddObject(Object3d::Create(modelFloor));
 	floor = floorWP.lock();
@@ -30,13 +31,17 @@ void GameScene::Initialize()
 	object1 = object1WP.lock();
 	std::weak_ptr<Object3d> object2WP = objectManager->AddObject(Object3d::Create(modelEnemy1));
 	object2 = object2WP.lock();
+	std::weak_ptr<Object3d> goalWP = objectManager->AddObject(Object3d::Create(modelFlag));
+	goal = goalWP.lock();
 	// オブジェクト位置調整
 	object1->SetPosition({ 0,0,-5 });
 	object2->SetPosition({ 0,0,+5 });
+	goal->SetPosition({ 30,0,50 });
 
 	object2->SetRotation({ 0,180,0 });
 
 	object2->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	goal->SetScale(XMFLOAT3(5.0f, 5.0f, 5.0f));
 
 	// プレイヤー後方にカメラを配置
 	XMFLOAT3 pos = object1->GetPosition();
@@ -61,6 +66,7 @@ void GameScene::Finalize()
 	delete modelFloor;
 	delete modelPlayer;
 	delete modelEnemy1;
+	delete modelFlag;
 }
 
 void GameScene::Update()
