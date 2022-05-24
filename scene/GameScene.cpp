@@ -96,9 +96,9 @@ void GameScene::Update()
 			pos.x -= cosf(XMConvertToRadians(rot.y));
 			pos.z += sinf(XMConvertToRadians(rot.y));
 		}
-		object1->SetPosition(pos);
-		Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
 	}
+	object1->SetPosition(pos);
+	Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
 
 	// 左右の自機回転、左シフトで3倍速
 	if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
@@ -112,8 +112,8 @@ void GameScene::Update()
 				rot.y -= rotUNIT * 2.0f;
 			rot.y -= rotUNIT;
 		}
-		object1->SetRotation(rot);
 	}
+	object1->SetRotation(rot);
 
 	// プレイヤーにカメラ追従
 	XMFLOAT3 eye = object1->GetPosition();
@@ -134,6 +134,7 @@ void GameScene::Update()
 	XMFLOAT3 gPos = goal->GetPosition();
 	float range = sqrtf(powf(pPos.x - gPos.x, 2) + powf(pPos.z - gPos.z, 2));
 	if (range <= 5.0f) {
+		score++;
 		goal->SetPosition(XMFLOAT3(rand() % 101 - 50, 0, rand() % 101 - 50));
 	}
 
@@ -145,6 +146,12 @@ void GameScene::Update()
 	if (input->TriggerKey(DIK_RETURN)) {
 		SceneManager::GetInstance()->ChangeScene("TITLE");
 	}
+
+	char chr[256] = {};
+	sprintf_s(chr, 256,"%d", score);
+
+	DebugText::GetInstance()->Print("SCORE : ", 1100, 100);
+	DebugText::GetInstance()->Print(chr, 1170, 100);
 
 	// プレイヤーモード毎の表記
 	switch (playerMode) {

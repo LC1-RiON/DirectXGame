@@ -37,5 +37,7 @@ private:
 	float rotX = 0;
 	float rotY = 0;
 	float rotZ = 0;
+
+	int score = 0;
 };
 
