@@ -45,15 +45,19 @@ void GameScene::Initialize()
 	object2->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	goal->SetScale(XMFLOAT3(5.0f, 5.0f, 5.0f));
 
-	// プレイヤー後方にカメラを配置
+	// プレイヤー視点にカメラを配置
 	XMFLOAT3 pos = object1->GetPosition();
-	XMFLOAT3 eye = pos;
 	XMFLOAT3 rot = object1->GetRotation();
-	eye.x -= sinf(XMConvertToRadians(rot.y)) * 10.0f;
+	XMFLOAT3 eye = pos;
+	eye.x += sinf(XMConvertToRadians(rot.y)) * 1.0f;
 	eye.y += 10.0f;
-	eye.z -= cosf(XMConvertToRadians(rot.y)) * 10.0f;
+	eye.z += cosf(XMConvertToRadians(rot.y)) * 1.0f;
 	Object3d::SetEye(eye);
-	Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
+	XMFLOAT3 target = pos;
+	target.x += sinf(XMConvertToRadians(rot.y)) * 10.0f;
+	target.y += 10.0f;
+	target.z += cosf(XMConvertToRadians(rot.y)) * 10.0f;
+	Object3d::SetTarget(target);
 
 	// 音声読み込み
 	Audio::GetInstance()->LoadWave("Alarm01.wav");
@@ -98,7 +102,6 @@ void GameScene::Update()
 		}
 	}
 	object1->SetPosition(pos);
-	Object3d::SetTarget(XMFLOAT3(pos.x, pos.y + 10.0f, pos.z));
 
 	// 左右の自機回転、左シフトで3倍速
 	if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT)) {
@@ -117,10 +120,15 @@ void GameScene::Update()
 
 	// プレイヤーにカメラ追従
 	XMFLOAT3 eye = object1->GetPosition();
-	eye.x -= sinf(XMConvertToRadians(rot.y)) * 10.0f;
+	eye.x += sinf(XMConvertToRadians(rot.y)) * 1.0f;
 	eye.y += 10.0f;
-	eye.z -= cosf(XMConvertToRadians(rot.y)) * 10.0f;
+	eye.z += cosf(XMConvertToRadians(rot.y)) * 1.0f;
 	Object3d::SetEye(eye);
+	XMFLOAT3 target = object1->GetPosition();
+	target.x += sinf(XMConvertToRadians(rot.y)) * 10.0f;
+	target.y += 10.0f;
+	target.z += cosf(XMConvertToRadians(rot.y)) * 10.0f;
+	Object3d::SetTarget(target);
 
 	// SPACEキーでモードチェンジ
 	if (input->TriggerKey(DIK_SPACE)) {
