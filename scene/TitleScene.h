@@ -17,5 +17,7 @@ public:
 
 private:
 	Sprite* sprite = nullptr;
+
+	int count = 0;
 };
 
