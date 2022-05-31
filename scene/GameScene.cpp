@@ -38,7 +38,7 @@ void GameScene::Initialize()
 	// オブジェクト位置調整
 	object1->SetPosition({ 0,0,-5 });
 	object2->SetPosition({ 0,0,+5 });
-	goal->SetPosition({ 30,0,50 });
+	goal->SetPosition(XMFLOAT3(rand() % 101 - 50, 0, rand() % 101 - 50));
 
 	object2->SetRotation({ 0,180,0 });
 
