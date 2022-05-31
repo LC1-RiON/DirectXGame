@@ -15,7 +15,7 @@ void WinApp::Initialize()
 {
     wClass.cbSize = sizeof(WNDCLASSEX);
     wClass.lpfnWndProc = (WNDPROC)WindowProc; // ウィンドウプロシージャを設定
-    wClass.lpszClassName = L"DirectXGame"; // ウィンドウクラス名
+    wClass.lpszClassName = L"Beastealth"; // ウィンドウクラス名
     wClass.hInstance = GetModuleHandle(nullptr); // ウィンドウハンドル
     wClass.hCursor = LoadCursor(NULL, IDC_ARROW); // カーソル指定
 
@@ -27,7 +27,7 @@ void WinApp::Initialize()
 
     // ウィンドウオブジェクトの生成
     hwnd = CreateWindow(wClass.lpszClassName, // クラス名
-        L"DirectXGame",         // タイトルバーの文字
+        L"Beastealth",         // タイトルバーの文字
         WS_OVERLAPPEDWINDOW,        // 標準的なウィンドウスタイル
         CW_USEDEFAULT,              // 表示X座標（OSに任せる）
         CW_USEDEFAULT,              // 表示Y座標（OSに任せる）
