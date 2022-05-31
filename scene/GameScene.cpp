@@ -158,8 +158,12 @@ void GameScene::Update()
 	char chr[256] = {};
 	sprintf_s(chr, 256,"%d", score);
 
-	DebugText::GetInstance()->Print("SCORE : ", 1100, 100);
-	DebugText::GetInstance()->Print(chr, 1170, 100);
+	DebugText::GetInstance()->Print("SCORE : ", 1100, 150);
+	DebugText::GetInstance()->Print(chr, 1170, 150);
+	// 特定スコア到達
+	if (score >= 10) {
+		DebugText::GetInstance()->Print("Target Complete", 1100, 100);
+	}
 
 	// プレイヤーモード毎の表記
 	switch (playerMode) {
