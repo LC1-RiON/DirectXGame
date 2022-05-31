@@ -18,6 +18,7 @@ public:
 
 private:
 	Sprite* sprite;
+	Sprite* spriteComp;
 
 	Model* modelFloor = nullptr;
 	Model* modelPlayer = nullptr;

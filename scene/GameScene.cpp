@@ -13,10 +13,12 @@ void GameScene::Initialize()
 	srand(time(NULL));
 	// スプライト共通テクスチャ読み込み
 	SpriteCommon::GetInstance()->LoadTexture(1, L"Resources/playscene.png");
+	SpriteCommon::GetInstance()->LoadTexture(2, L"Resources/complete.png");
 	//spriteCommon->LoadTexture(2, L"Resources/house.png");
 
 	// スプライトの生成
 	sprite = Sprite::Create(1, { 0,0 }, false, false);
+	spriteComp = Sprite::Create(2, { 0,0 }, false, false);
 
 	// オブジェクトマネージャ生成
 	objectManager = std::make_unique<ObjectManager>();
@@ -60,7 +62,7 @@ void GameScene::Initialize()
 	Object3d::SetTarget(target);
 
 	// 音声読み込み
-	Audio::GetInstance()->LoadWave("Alarm01.wav");
+	Audio::GetInstance()->LoadWave("Alarm01.wav");	
 
 	// 音声再生
 	//Audio::GetInstance()->PlayWave("Alarm01.wav");
@@ -69,6 +71,7 @@ void GameScene::Initialize()
 void GameScene::Finalize()
 {
 	delete sprite;
+	delete spriteComp;
 	delete modelFloor;
 	delete modelPlayer;
 	delete modelEnemy1;
@@ -151,31 +154,13 @@ void GameScene::Update()
 	//	OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
 	//}
 
+	// Rキーでリセット
+	if (input->TriggerKey(DIK_R)) {
+		SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	}
+
 	if (input->TriggerKey(DIK_RETURN)) {
 		SceneManager::GetInstance()->ChangeScene("TITLE");
-	}
-
-	char chr[256] = {};
-	sprintf_s(chr, 256,"%d", score);
-
-	DebugText::GetInstance()->Print("SCORE : ", 1100, 150);
-	DebugText::GetInstance()->Print(chr, 1170, 150);
-	// 特定スコア到達
-	if (score >= 10) {
-		DebugText::GetInstance()->Print("Target Complete", 1100, 100);
-	}
-
-	// プレイヤーモード毎の表記
-	switch (playerMode) {
-	case 1:
-		DebugText::GetInstance()->Print("MODE BAT", 200, 100);
-		break;
-	case 2:
-		DebugText::GetInstance()->Print("MODE SNAKE", 200, 100);
-		break;
-	case 3:
-		DebugText::GetInstance()->Print("MODE DOG", 200, 100);
-		break;
 	}
 
 	// 3Dオブジェクト更新
@@ -215,4 +200,28 @@ void GameScene::Draw()
 	/// <summary>
 	/// スプライト描画処理の追加位置
 	/// </summary>
+
+	// 特定スコア到達
+	if (score >= 10) {
+		spriteComp->Draw();
+	}
+
+	char numScore[10] = {};
+	sprintf_s(numScore, 10,"%d", score);
+
+	DebugText::GetInstance()->Print("SCORE : ", 1100, 150);
+	DebugText::GetInstance()->Print(numScore, 1170, 150);
+
+	// プレイヤーモード毎の表記
+	//switch (playerMode) {
+	//case 1:
+	//	DebugText::GetInstance()->Print("MODE BAT", 200, 100);
+	//	break;
+	//case 2:
+	//	DebugText::GetInstance()->Print("MODE SNAKE", 200, 100);
+	//	break;
+	//case 3:
+	//	DebugText::GetInstance()->Print("MODE DOG", 200, 100);
+	//	break;
+	//}
 }
